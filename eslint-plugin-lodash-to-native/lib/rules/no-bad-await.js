@@ -10,9 +10,10 @@
 
 module.exports = {
   meta: {
+    type: "problem",
     docs: {
       description: "no bad await",
-      category: "Fill me in",
+      category: "test",
       recommended: false
     },
     fixable: null, // or "code" or "whitespace"

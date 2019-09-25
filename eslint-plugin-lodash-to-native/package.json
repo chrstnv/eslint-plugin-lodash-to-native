@@ -14,10 +14,13 @@
   },
   "dependencies": {
     "ast-utils": "^1.0.0",
+    "eslint-plugin-async-await": "0.0.0",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-standard": "^4.0.1",
     "requireindex": "~1.1.0"
   },
   "devDependencies": {
-    "eslint": "~3.9.1",
+    "eslint": "^3.18.0",
     "mocha": "^3.1.2"
   },
   "engines": {
