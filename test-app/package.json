@@ -14,5 +14,8 @@
     "eslint": "^6.4.0",
     "eslint-plugin-local-rules": "^0.1.1",
     "eslint-plugin-lodash-to-native": "file:../eslint-plugin-lodash-to-native"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15"
   }
 }

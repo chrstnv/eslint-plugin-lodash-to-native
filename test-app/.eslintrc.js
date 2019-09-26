@@ -11,14 +11,17 @@ module.exports = {
     SharedArrayBuffer: 'readonly'
   },
   parserOptions: {
-    ecmaVersion: 2018
+    ecmaVersion: 9,
+    sourceType: 'module',
+    ecmaFeatures: {
+      globalReturn: true,
+      experimentalObjectRestSpread: true
+    }
   },
   rules: {
     quotes: [2, 'single'],
     'no-console': 2,
-    'lodash-to-native/no-bad-await': 2
+    'lodash-to-native/map': 2
   },
-  plugins: [
-    'lodash-to-native'
-  ]
+  plugins: ['lodash-to-native']
 };
