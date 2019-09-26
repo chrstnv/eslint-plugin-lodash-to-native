@@ -8,7 +8,7 @@
     "eslint-plugin"
   ],
   "author": "Kristina Volosiuk",
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha tests --recursive"
   },

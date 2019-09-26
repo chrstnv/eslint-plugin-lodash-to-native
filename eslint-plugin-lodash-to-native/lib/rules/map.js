@@ -15,16 +15,14 @@ const utils = require('eslint-utils');
 
 module.exports = {
   meta: {
-    type: 'problem',
+    type: 'suggestion',
     docs: {
       description: 'lodash-to-native/map',
-      category: 'problem',
+      category: 'suggestion',
       recommended: false
     },
-    fixable: 'code', // or "code" or "whitespace"
-    schema: [
-      // fill in your schema
-    ]
+    fixable: 'code',
+    schema: []
   },
   create: function(context) {
     // variables should be defined here
@@ -120,7 +118,6 @@ module.exports = {
 
     return {
       "CallExpression[callee.object.name='_'][callee.property.name='map']": node => {
-        // проверка на переопределение `_`
         if (!checkLodashReassignment(context, node)) {
           const firstArgumentType = node.arguments[0] && node.arguments[0].type;
 
