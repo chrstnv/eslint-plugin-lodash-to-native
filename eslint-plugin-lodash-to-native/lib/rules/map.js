@@ -36,7 +36,12 @@ module.exports = {
     // Helpers
     //----------------------------------------------------------------------
 
-    // any helper functions should go here or else delete this section
+    /**
+     * Функция возвращает тип узла заданной переменной
+     * (ArrayExpression, ObjectExpression и т.д.)
+     * @param {String} varName - название переменной
+     * @returns {String} - название типа переменной
+     */
     function getVariableType(varName) {
       if (!varName) {
         return;
@@ -51,7 +56,13 @@ module.exports = {
       );
     }
 
-    function getNativeArrayMapExpression(node, isCallExpression = false) {
+    /**
+     * Функция возвращает строку с кодом вызова нативного Array#map
+     * для заданного узла дерева с вызовом _.map()
+     * @param {Object} node - объект узла с вызовом _.map()
+     * @returns {String} - строка с исходным кодом вызова Array#map
+     */
+    function getNativeArrayMapExpression(node) {
       // получить строку с полным исходным кодом
       const code = context.getSourceCode().getText();
 
@@ -73,6 +84,13 @@ module.exports = {
       return `${firstArg}.map(${secondArg})`;
     }
 
+    /**
+     *  Функция проверяет переопределялась ли переменная "_" до вызова
+     *  проверяемого выражения _.map
+     * @param {Object} context - объект текущего контеста проверяемого узла
+     * @param {Object} node - объект проверяемого узла с вызовом _.map
+     * @returns {Boolean}
+     */
     function checkLodashReassignment(context, node) {
       const lodashUnderscore = utils.findVariable(context.getScope(), '_');
       const lodashRefs = lodashUnderscore ? lodashUnderscore.references : [];
@@ -103,7 +121,6 @@ module.exports = {
     return {
       "CallExpression[callee.object.name='_'][callee.property.name='map']": node => {
         // проверка на переопределение `_`
-
         if (!checkLodashReassignment(context, node)) {
           const firstArgumentType = node.arguments[0] && node.arguments[0].type;
 
