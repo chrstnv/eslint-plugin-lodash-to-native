@@ -1,2 +1,3 @@
 test-app/node_modules
 eslint-plugin-lodash-to-native/node_modules
+.vscode

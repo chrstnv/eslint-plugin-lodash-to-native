@@ -45,6 +45,15 @@ ruleTester.run('map', rule, {
           type: 'CallExpression'
         }
       ]
-    }
+    },
+    // {
+    //   code: 'function getArray1() { return [23, 23]; }; _.map(getArray1(), (n) => {n * n})',
+    //   errors: [
+    //     {
+    //       message: 'There should be native Array#map here.',
+    //       type: 'CallExpression'
+    //     }
+    //   ]
+    // }
   ]
 });

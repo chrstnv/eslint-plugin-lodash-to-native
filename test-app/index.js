@@ -23,7 +23,7 @@ function getArray1 () { return [23, 23]; }
 //   return getArray();
 // }
 
-// let arr = [4, 5, 6];
+let arr = [4, 5, 6];
 
 // let obj = {
 //   'a': 3,
@@ -33,4 +33,6 @@ function getArray1 () { return [23, 23]; }
 
 let mapped1 = _.map([1, 2, 3], square);
 
-let mapped2 = _.map(getArray1(), square);
+let mapped2 = _.map(arr, square);
+
+let mapped3 = _.map(getArray1(), square);

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
-const utils = require("eslint-utils")
+const utils = require('eslint-utils');
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -35,7 +35,47 @@ module.exports = {
     //----------------------------------------------------------------------
 
     // any helper functions should go here or else delete this section
-    function getVariableType () {
+    function getVariableType(varName) {
+      if (!varName) {
+        return;
+      }
+
+      const variable = utils.findVariable(context.getScope(), varName);
+      console.log('variable', variable);
+      console.log(
+        'variable',
+
+        variable.identifiers[0] && variable.identifiers[0].parent.init.type
+      );
+
+      return (
+        variable.identifiers[0] && variable.identifiers[0].parent.init.type
+      );
+    }
+
+    function getNativeArrayMapExpression(node) {
+      // получить начальную и конечную позицию аргументов _.map
+      // в исходном коде
+
+      const startA = node.arguments[0].start;
+      const endA = node.arguments[0].end;
+
+      const startB = node.arguments[1].start;
+      const endB = node.arguments[1].end;
+
+      // получить строку с первым аргументом
+      const firstArg = context
+        .getSourceCode()
+        .getText()
+        .substring(startA, endA);
+
+      const secondArg = context
+        .getSourceCode()
+        .getText()
+        .substring(startB, endB);
+
+      // вернуть итоговое выражение
+      return `${firstArg}.map(${secondArg})`;
     }
 
     //----------------------------------------------------------------------
@@ -50,23 +90,41 @@ module.exports = {
           case 'ArrayExpression':
             context.report({
               node,
-              message
+              message,
+              fix: function(fixer) {
+                // заменить текущий CallExpression на новое выражение
+                return fixer.replaceText(node, getNativeArrayMapExpression(node));
+              }
             });
             break;
 
           case 'Identifier':
-            const firstArgumentName = node.arguments[0] && node.arguments[0].name;
-            const variable = utils.findVariable(context.getScope(), firstArgumentName);
-            const varType = variable.identifiers[0] && variable.identifiers[0].parent.init.type;
+            const identifierName = node.arguments[0] && node.arguments[0].name;
 
-            if(varType === 'ArrayExpression') {
+            if (getVariableType(identifierName) === 'ArrayExpression') {
               context.report({
                 node,
-                message
+                message,
+                fix: function(fixer) {
+                  // заменить текущий CallExpression на новое выражение
+                  return fixer.replaceText(node, getNativeArrayMapExpression(node));
+                }
               });
             }
             break;
 
+          case 'CallExpression':
+            // const functionName =
+            //   node.arguments[0] && node.arguments[0].callee.name;
+
+            // if (getFunctionReturnType(functionName) === 'ArrayExpression') {
+            //   context.report({
+            //     node,
+            //     message
+            //   });
+            // }
+
+            break;
           default:
             break;
         }
