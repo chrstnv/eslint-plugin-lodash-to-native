@@ -73,37 +73,42 @@ module.exports = {
       return `${firstArg}.map(${secondArg})`;
     }
 
+    function checkLodashReassignment(context, node) {
+      const lodashUnderscore = utils.findVariable(context.getScope(), '_');
+      const lodashRefs = lodashUnderscore ? lodashUnderscore.references : [];
+      let isReassigned = false;
+
+      for (let i = 0; i < lodashRefs.length; i++) {
+        const ref = lodashRefs[i];
+
+        if (ref.init === false) {
+          // дополнительно проверяем, раньше или позже нашего выражения
+          // произошло переопределение
+          // если раньше - правило map не применяется
+          const refStart = ref.identifier.start;
+
+          if (refStart < node.start) {
+            isReassigned = true;
+            break;
+          }
+        }
+      }
+      return isReassigned;
+    }
+
     //----------------------------------------------------------------------
     // Public
     //----------------------------------------------------------------------
 
     return {
       "CallExpression[callee.object.name='_'][callee.property.name='map']": node => {
-        const firstArgumentType = node.arguments[0] && node.arguments[0].type;
+        // проверка на переопределение `_`
 
-        switch (firstArgumentType) {
-          case 'ArrayExpression':
-            context.report({
-              node,
-              message,
-              fix: function(fixer) {
-                // заменить текущий CallExpression на новое выражение
-                return fixer.replaceText(
-                  node,
-                  getNativeArrayMapExpression(node)
-                );
-              }
-            });
-            break;
+        if (!checkLodashReassignment(context, node)) {
+          const firstArgumentType = node.arguments[0] && node.arguments[0].type;
 
-          case 'ObjectExpression':
-            break;
-
-          case 'Identifier':
-            const identifierName = node.arguments[0] && node.arguments[0].name;
-            const varType = getVariableType(identifierName);
-
-            if (varType === 'ArrayExpression') {
+          switch (firstArgumentType) {
+            case 'ArrayExpression':
               context.report({
                 node,
                 message,
@@ -116,47 +121,70 @@ module.exports = {
                 }
               });
               break;
-            } else if (varType === 'ObjectExpression') {
+
+            case 'ObjectExpression':
               break;
-            }
-          default:
-            const allowedAncestors = [
-              'ReturnStatement',
-              'VariableDeclarator',
-              'AssignmentExpression',
-              'ExpressionStatement'
-            ];
-            const parentType = node.parent.type;
 
-            if (allowedAncestors.includes(parentType)) {
-              // получить строку с текущим выражением _.map()
-              const code = context.getSourceCode().getText();
+            case 'Identifier':
+              const identifierName =
+                node.arguments[0] && node.arguments[0].name;
+              const varType = getVariableType(identifierName);
 
-              // получить строку с найденной нодой
-              const nodeStr = code.substring(node.start, node.end);
+              if (varType === 'ArrayExpression') {
+                context.report({
+                  node,
+                  message,
+                  fix: function(fixer) {
+                    // заменить текущий CallExpression на новое выражение
+                    return fixer.replaceText(
+                      node,
+                      getNativeArrayMapExpression(node)
+                    );
+                  }
+                });
+                break;
+              } else if (varType === 'ObjectExpression') {
+                break;
+              }
+            default:
+              const allowedAncestors = [
+                'ReturnStatement',
+                'VariableDeclarator',
+                'AssignmentExpression',
+                'ExpressionStatement'
+              ];
+              const parentType = node.parent.type;
 
-              // получить начальную и конечную позицию
-              // первого аргумента _.map в исходном коде
-              const startA = node.arguments[0].start;
-              const endA = node.arguments[0].end;
+              if (allowedAncestors.includes(parentType)) {
+                // получить строку с текущим выражением _.map()
+                const code = context.getSourceCode().getText();
 
-              // получить строку с первым аргументом
-              const firstArg = code.substring(startA, endA);
+                // получить строку с найденной нодой
+                const nodeStr = code.substring(node.start, node.end);
 
-              context.report({
-                node,
-                message: messageWithCondition,
-                fix: function(fixer) {
-                  return fixer.replaceText(
-                    node,
-                    `Array.isArray(${firstArg}) ? ${getNativeArrayMapExpression(
-                      node
-                    )} : ${nodeStr}`
-                  );
-                }
-              });
-            }
-            break;
+                // получить начальную и конечную позицию
+                // первого аргумента _.map в исходном коде
+                const startA = node.arguments[0].start;
+                const endA = node.arguments[0].end;
+
+                // получить строку с первым аргументом
+                const firstArg = code.substring(startA, endA);
+
+                context.report({
+                  node,
+                  message: messageWithCondition,
+                  fix: function(fixer) {
+                    return fixer.replaceText(
+                      node,
+                      `Array.isArray(${firstArg}) ? ${getNativeArrayMapExpression(
+                        node
+                      )} : ${nodeStr}`
+                    );
+                  }
+                });
+              }
+              break;
+          }
         }
       }
     };
