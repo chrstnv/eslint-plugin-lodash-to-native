@@ -108,6 +108,14 @@ ruleTester.run('map', rule, {
           message: 'There should be native Array#map here.'
         }
       ]
+    },
+    {
+      code: `let test = _.map(Math.random() < 0.5 ? [11, 22] : [1, 2], n => n ** 2);`,
+      errors: [
+        {
+          message: 'There should be conditional native Array#map here.'
+        }
+      ]
     }
   ]
 });

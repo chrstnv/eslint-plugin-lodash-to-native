@@ -116,13 +116,17 @@ let b = _.map(a, n => {
 });
 
 //after fix
-let b = Array.isArray(a)
-  ? a.map(n => {
-      n * n;
-    })
-  : _.map(a, n => {
-      n * n;
-    });
+let b = (function() {
+  let arg = arguments[0];
+
+  return Array.isArray(arg)
+    ? arg.map(n => {
+        n * n;
+      })
+    : _.map(arg, n => {
+        n * n;
+      });
+})(a);
 ```
 
 ### Lodash reassignment check
