@@ -116,35 +116,34 @@ let b = _.map(a, n => {
 });
 
 //after fix
-let b = (function() {
-  let arg = arguments[0];
-
-  return Array.isArray(arg)
-    ? arg.map(n => {
-        n * n;
-      })
-    : _.map(arg, n => {
-        n * n;
-      });
-})(a);
+let b = (function(arg, cb) {
+  return Array.isArray(arg) ? arg.map(cb) : _.map(arg, cb);
+})(a, n => {
+  n * n;
+});
 ```
 
 ### Lodash reassignment check
+
 **Note:** a rule will not apply if a lodash import variable was reassigned. But if the '_' variable declared and reassigned **after** _.map expression a rule will be applied for this line. For example:
 
 ```js
-let _ = require('lodash');
+let _ = require("lodash");
 
 // a rule will be applied
-let a = _.map({a : 1, b: 2}, n => {n * n});
+let a = _.map({ a: 1, b: 2 }, n => {
+  n * n;
+});
 
 // reassignment of lodash '_' variable
-_ = {map: () => []};
+_ = { map: () => [] };
 
 // a rule won't be applied
-let b = _.map([1, 2, 3], (n) => {n * n})
-
+let b = _.map([1, 2, 3], n => {
+  n * n;
+});
 ```
 
 ### Tests
+
 A rule was covered by series of tests. They could be executed by `npm test` command.
